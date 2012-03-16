@@ -42,27 +42,19 @@ function CheckCaptcha($Captcha){
 	}
 }
 function CaptchaController(){
-	global $InLogin;
-	if((!isset($_SESSION['captcha_time']) or $_SESSION['captcha_time'] <= (time() - 2000)) and !$_POST and !$InLogin and isset($user)){
+	if((!isset($_SESSION['captcha_time']) or $_SESSION['captcha_time'] <= (time() - 2000)) and !$_POST){
 		NewCaptcha();
-	}elseif($_POST and $_POST['captcha'] != '' and (!isset($_SESSION['captcha_time']) or $_SESSION['captcha_time'] <= (time() - 2000)) and !$InLogin and isset($user)){
+	}elseif($_POST and $_POST['captcha'] != '' and (!isset($_SESSION['captcha_time']) or $_SESSION['captcha_time'] <= (time() - 2000))){
 		if(CheckCaptcha($_POST['captcha'])){
 			$_SESSION['captcha_time'] = time();
 		}else{
 			NewCaptcha();
 		}
-	}elseif($_SESSION['captcha_time'] > (time() - 2000) or $InLogin){
+	}elseif($_SESSION['captcha_time'] > (time() - 2000)){
 		$_SESSION['captcha_time'] = time();
 	}
 }
 function NewCaptcha(){
-	global $ugamelaplay_root_dir;
-	$root = $ugamelaplay_root_dir;
-	if(strpos($root, "/admin") === false){
-		$root = './';
-	}else{
-		$root = '../';
-	}
 	if(!CheckCaptcha($_POST['captcha'])){
 		$parse = array();
 		$parse['inputs'] = '';
@@ -71,7 +63,7 @@ function NewCaptcha(){
 				$parse['inputs'] .= '<input type="hidden" name="'.$Value.'" value="'.$Val.'"/>';
 			}
 		}
-		$TPL = '<script type="text/javascript">	function reloadCaptcha() { 	document.images.captcha.src = "'.$root.'captcha.php?ghost=" + new Date().getSeconds();}</script><form method="post">{inputs}<table width="300"><tr><td class="c" colspan="2">Proteccion Captcha</td></tr><tr><th colspan="2">Sistema anti-bots</th></tr><tr><th>Introduce los car&aacute;cteres negros (4)<center><div id="captcha" style="border: 1px dashed rgb(102, 102, 102);width:150px;cursor:pointer;" onclick="reloadCaptcha();"><img name="captcha" src="'.$root.'captcha.php?ghost='. time() .'"></div></center></th><th>- No existe el 0<br>- No es sensible a mayusculas<br/>- Haz click en la imagen para recargar<br/><br/><input name="captcha" size="20" maxlength="4" type="text" style="border:1px solid lime;"/></th></tr><tr><th colspan="2"><input type="submit" value="Comprobar"/></th></tr></table></form>';
+		$TPL = '<script type="text/javascript">	function reloadCaptcha() { 	document.images.captcha.src = "captcha.php?ghost=" + new Date().getSeconds();}</script><form method="post">{inputs}<table width="300"><tr><td class="c" colspan="2">Proteccion Captcha</td></tr><tr><th colspan="2">Sistema anti-bots</th></tr><tr><th>Introduce los car&aacute;cteres negros (4)<center><div id="captcha" style="border: 1px dashed rgb(102, 102, 102);width:150px;cursor:pointer;" onclick="reloadCaptcha();"><img name="captcha" src="'.$root.'captcha.php?ghost='. time() .'"></div></center></th><th>- No existe el 0<br>- No es sensible a mayusculas<br/>- Haz click en la imagen para recargar<br/><br/><input name="captcha" size="20" maxlength="4" type="text" style="border:1px solid lime;"/></th></tr><tr><th colspan="2"><input type="submit" value="Comprobar"/></th></tr></table></form>';
 		
 		display(parsetemplate($TPL, $parse),'Captcha', false);
 	}
